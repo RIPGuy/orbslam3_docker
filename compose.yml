@@ -1,0 +1,28 @@
+services:
+  orbslam3:
+    image: jahaniam/orbslam3:ubuntu20_noetic_cuda
+    # runtime: nvidia
+    container_name: orbslam3
+    # tty: true
+    command: nvidia-smi
+    environment:
+      - DISPLAY=$DISPLAY
+      - QT_X11_NO_MITSHM=1
+      - XAUTHORITY=$XAUTH
+      - ROS_IP=127.0.0.1
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ./Datasets:/Datasets
+      - /etc/group:/etc/group:ro
+      - ./ORB_SLAM3:/ORB_SLAM3
+    network_mode: host
+    ipc: host
+    cap_add:
+      - SYS_PTRACE
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]

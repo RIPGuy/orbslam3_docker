@@ -20,15 +20,19 @@ touch $XAUTH
 xauth nlist $DISPLAY | sed -e 's/^..../ffff/' | xauth -f $XAUTH nmerge -
 
 xhost +local:docker
-docker pull jahaniam/orbslam3:ubuntu20_noetic_cuda
+# docker pull jahaniam/orbslam3:ubuntu20_noetic_cuda
 
 # docker pull jahaniam/orbslam3:ubuntu20_noetic_cuda
 
 # Remove existing container
-docker rm -f orbslam3 &>/dev/null
-[ -d "ORB_SLAM3" ] && sudo rm -rf ORB_SLAM3 && mkdir ORB_SLAM3
+docker rm -f orbslam3 &>/dev/null           
+# [ -d "ORB_SLAM3" ] && sudo rm -rf ORB_SLAM3 && mkdir ORB_SLAM3
+mkdir ORB_SLAM3
 
 # Create a new container
+# export XAUTH
+# export XSOCK
+# docker compose up -d
 docker run -td --privileged --net=host --ipc=host \
     --name="orbslam3" \
     --gpus=all \
@@ -43,8 +47,10 @@ docker run -td --privileged --net=host --ipc=host \
     -v `pwd`/ORB_SLAM3:/ORB_SLAM3 \
     jahaniam/orbslam3:ubuntu20_noetic_cuda bash
 
+gh repo clone RIPGuy/ORB_SLAM3
+./Examples/Monocular-Inertial/mono_inertial_gopro_vi ./Vocabulary/ORBvoc.txt ./Examples/Monocular-Inertial/gopro9_wide_setting.yaml /Datasets/hero8.mp4 /Datasets/hero8.json
 # Git pull orbslam and compile
-docker exec -it orbslam3 bash -i -c  "git clone -b add_euroc_example.sh https://github.com/jahaniam/ORB_SLAM3.git /ORB_SLAM3 && cd /ORB_SLAM3 && chmod +x build.sh && ./build.sh "
+# docker exec -it orbslam3 bash -i -c  "git clone https://github.com/RIPGuy/ORB_SLAM3.git /ORB_SLAM3 && cd /ORB_SLAM3 && chmod +x build.sh && ./build.sh "
+docker exec -it orbslam3 bash -i -c  "cd /ORB_SLAM3 && chmod +x build.sh && ./build.sh"
 # Compile ORBSLAM3-ROS
-docker exec -it orbslam3 bash -i -c "echo 'ROS_PACKAGE_PATH=/opt/ros/noetic/share:/ORB_SLAM3/Examples/ROS'>>~/.bashrc && source ~/.bashrc && cd /ORB_SLAM3 && chmod +x build_ros.sh && ./build_ros.sh"
-
+# docker exec -it orbslam3 bash -i -c "echo 'ROS_PACKAGE_PATH=/opt/ros/noetic/share:/ORB_SLAM3/Examples/ROS'>>~/.bashrc && source ~/.bashrc && cd /ORB_SLAM3 && chmod +x build_ros.sh && ./build_ros.sh"
